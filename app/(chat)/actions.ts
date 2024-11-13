@@ -1,13 +1,12 @@
 'use server';
 
 import { CoreMessage, CoreUserMessage, generateText } from 'ai';
-import { cookies } from 'next/headers';
 
 import { customModel } from '@/ai';
 
 export async function saveModelId(model: string) {
-  const cookieStore = await cookies();
-  cookieStore.set('model-id', model);
+  // const cookieStore = await cookies();
+  // cookieStore.set('model-id', model);
 }
 
 export async function generateTitleFromUserMessage({

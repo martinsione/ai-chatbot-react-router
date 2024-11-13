@@ -1,28 +1,27 @@
-'use client';
-
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
+import type { Route } from 'types:(auth)/register/+types.page';
+import { ActionFunctionArgs, Link, redirect, useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AuthForm } from '@/components/custom/auth-form';
-import { SubmitButton } from '@/components/custom/submit-button';
 
-import { register, RegisterActionState } from '../actions';
+import { register } from '../actions';
+import { Button } from '@/components/ui/button';
 
-export default function Page() {
-  const router = useRouter();
+export async function action(args: ActionFunctionArgs) {
+  const res = await register(args);
+  if (res.status === 'success') {
+    throw redirect('/', { headers: res.headers });
+  }
+  return res;
+}
 
-  const [email, setEmail] = useState('');
+export default function Page({ actionData }: Route.ComponentProps) {
+  const navigate = useNavigate();
+
   const [isSuccessful, setIsSuccessful] = useState(false);
 
-  const [state, formAction] = useActionState<RegisterActionState, FormData>(
-    register,
-    {
-      status: 'idle',
-    }
-  );
-
+  const state = actionData || { status: 'idle' };
   useEffect(() => {
     if (state.status === 'user_exists') {
       toast.error('Account already exists');
@@ -33,14 +32,9 @@ export default function Page() {
     } else if (state.status === 'success') {
       toast.success('Account created successfully');
       setIsSuccessful(true);
-      router.refresh();
+      navigate('/');
     }
-  }, [state, router]);
-
-  const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
-  };
+  }, [state, navigate]);
 
   return (
     <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
@@ -51,12 +45,13 @@ export default function Page() {
             Create an account with your email and password
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign Up</SubmitButton>
+        <AuthForm>
+          <Button type="submit">Sign Up</Button>
+
           <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
             {'Already have an account? '}
             <Link
-              href="/login"
+              to="/login"
               className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
             >
               Sign in

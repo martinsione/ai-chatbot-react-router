@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { ActionFunctionArgs } from "react-router";
 
 import { createUser, getUser } from "@/db/queries";
 
@@ -13,25 +14,26 @@ const authFormSchema = z.object({
 
 export interface LoginActionState {
   status: "idle" | "in_progress" | "success" | "failed" | "invalid_data";
+  headers?: Headers;
 }
 
 export const login = async (
-  _: LoginActionState,
-  formData: FormData,
+  args: ActionFunctionArgs
 ): Promise<LoginActionState> => {
   try {
-    const validatedData = authFormSchema.parse({
+    const formData = await args.request.clone().formData();
+    const { email, password } = authFormSchema.parse({
       email: formData.get("email"),
       password: formData.get("password"),
     });
 
-    await signIn("credentials", {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false,
+    const res = await signIn(args, "credentials", {
+      email,
+      password,
+      redirectTo: '/'
     });
 
-    return { status: "success" };
+    return { status: "success", headers: res.headers };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { status: "invalid_data" };
@@ -49,37 +51,39 @@ export interface RegisterActionState {
     | "failed"
     | "user_exists"
     | "invalid_data";
+  headers?: Headers;
 }
 
 export const register = async (
-  _: RegisterActionState,
-  formData: FormData,
+  args: ActionFunctionArgs
 ): Promise<RegisterActionState> => {
   try {
-    const validatedData = authFormSchema.parse({
+    const formData = await args.request.clone().formData();
+    const { email, password } = authFormSchema.parse({
       email: formData.get("email"),
       password: formData.get("password"),
     });
 
-    let [user] = await getUser(validatedData.email);
+    let [user] = await getUser(email);
 
     if (user) {
       return { status: "user_exists" } as RegisterActionState;
     } else {
-      await createUser(validatedData.email, validatedData.password);
-      await signIn("credentials", {
-        email: validatedData.email,
-        password: validatedData.password,
-        redirect: false,
+      await createUser(email, password);
+      const res = await signIn(args, "credentials", {
+        email,
+        password,
+        redirectTo: '/'
       });
 
-      return { status: "success" };
+      return { status: "success", headers: res.headers };
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { status: "invalid_data" };
     }
 
+    console.log('error', error);
     return { status: "failed" };
   }
 };

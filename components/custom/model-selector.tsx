@@ -1,6 +1,6 @@
 'use client';
 
-import { startTransition, useMemo, useOptimistic, useState } from 'react';
+import { startTransition, useMemo, useState } from 'react';
 
 import { models } from '@/ai/models';
 import { saveModelId } from '@/app/(chat)/actions';
@@ -22,8 +22,7 @@ export function ModelSelector({
   selectedModelId: string;
 } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
-  const [optimisticModelId, setOptimisticModelId] =
-    useOptimistic(selectedModelId);
+  const [optimisticModelId, setOptimisticModelId] = useState(selectedModelId);
 
   const selectModel = useMemo(
     () => models.find((model) => model.id === optimisticModelId),

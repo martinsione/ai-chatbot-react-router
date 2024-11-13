@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { Link } from 'react-router';
 
 import { MessageIcon, VercelIcon } from './icons';
 
@@ -23,7 +23,7 @@ export const Overview = () => {
           This is an{' '}
           <Link
             className="font-medium underline underline-offset-4"
-            href="https://github.com/vercel/ai-chatbot"
+            to="https://github.com/martinsione/ai-chatbot-react-router"
             target="_blank"
           >
             open source
@@ -39,7 +39,7 @@ export const Overview = () => {
           You can learn more about the AI SDK by visiting the{' '}
           <Link
             className="font-medium underline underline-offset-4"
-            href="https://sdk.vercel.ai/docs"
+            to="https://sdk.vercel.ai/docs"
             target="_blank"
           >
             docs

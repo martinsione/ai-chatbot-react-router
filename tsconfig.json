@@ -13,21 +13,14 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "plugins": [{ "name": "@react-router/dev" }],
+    "rootDirs": [".", "./.react-router/types"],
+    "types": ["@react-router/node", "vite/client"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "types:*": ["./.react-router/types/app/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "next.config.js"
-  ],
+  "include": [".", ".react-router/types/**/*"],
   "exclude": ["node_modules"]
 }

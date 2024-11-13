@@ -1,3 +1,4 @@
+import { handler } from '@/lib/api-handler';
 import { auth } from '@/app/(auth)/auth';
 import { getSuggestionsByDocumentId } from '@/db/queries';
 
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
     return new Response('Not Found', { status: 404 });
   }
 
-  const session = await auth();
+  const session = await auth(request);
 
   if (!session || !session.user) {
     return new Response('Unauthorized', { status: 401 });
@@ -31,3 +32,5 @@ export async function GET(request: Request) {
 
   return Response.json(suggestions, { status: 200 });
 }
+
+export const { action, loader } = handler({ GET });

@@ -1,9 +1,8 @@
 'use client';
 
 import { isToday, isYesterday, subMonths, subWeeks } from 'date-fns';
-import Link from 'next/link';
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { type User } from 'next-auth';
+import { Link, useNavigate, useParams, useLocation } from 'react-router';
+import { type User } from '@auth/core/types';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
@@ -58,7 +57,7 @@ const ChatItem = ({
 }) => (
   <SidebarMenuItem>
     <SidebarMenuButton asChild isActive={isActive}>
-      <Link href={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
+      <Link to={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
         <span>{chat.title}</span>
       </Link>
     </SidebarMenuButton>
@@ -88,7 +87,7 @@ const ChatItem = ({
 export function SidebarHistory({ user }: { user: User | undefined }) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
-  const pathname = usePathname();
+  const pathname = useLocation();
   const {
     data: history,
     isLoading,
@@ -103,7 +102,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
   const handleDelete = async () => {
     const deletePromise = fetch(`/api/chat?id=${deleteId}`, {
       method: 'DELETE',
@@ -125,7 +124,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     setShowDeleteDialog(false);
 
     if (deleteId === id) {
-      router.push('/');
+      navigate('/');
     }
   };
 

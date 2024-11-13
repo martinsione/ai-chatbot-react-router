@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router";
 import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -58,6 +58,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           target="_blank"
           rel="noreferrer"
           {...props}
+          to={props.href}
         >
           {children}
         </Link>

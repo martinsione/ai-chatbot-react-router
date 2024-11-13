@@ -1,24 +1,39 @@
-import { cookies } from 'next/headers';
+import type { Route } from 'types:(chat)/+types.page';
+import { LoaderFunctionArgs } from 'react-router';
+
+// import { cookies } from 'next/headers';
 
 import { DEFAULT_MODEL_NAME, models } from '@/ai/models';
 import { Chat } from '@/components/custom/chat';
-import { generateUUID } from '@/lib/utils';
+import { convertToUIMessages, generateUUID } from '@/lib/utils';
+import { getMessagesByChatId } from '@/db/queries';
 
-export default async function Page() {
-  const id = generateUUID();
+export async function loader({ params }: LoaderFunctionArgs) {
+  const id = params.id || null;
+  const messagesFromDb = id ? await getMessagesByChatId({ id }) : [];
 
-  const cookieStore = await cookies();
-  const modelIdFromCookie = cookieStore.get('model-id')?.value;
+  return {
+    initialMessages: convertToUIMessages(messagesFromDb),
+  };
+}
 
-  const selectedModelId =
-    models.find((model) => model.id === modelIdFromCookie)?.id ||
-    DEFAULT_MODEL_NAME;
+export default function Page({ loaderData, params }: Route.ComponentProps) {
+  const id = params.id || generateUUID();
+
+  // const cookieStore = await cookies();
+  // const modelIdFromCookie = cookieStore.get('model-id')?.value;
+
+  // const selectedModelId =
+  //   models.find((model) => model.id === modelIdFromCookie)?.id ||
+  //   DEFAULT_MODEL_NAME;
+
+  const selectedModelId = DEFAULT_MODEL_NAME;
 
   return (
     <Chat
       key={id}
       id={id}
-      initialMessages={[]}
+      initialMessages={loaderData.initialMessages}
       selectedModelId={selectedModelId}
     />
   );

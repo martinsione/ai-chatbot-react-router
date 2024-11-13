@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { type User } from 'next-auth';
+import { useNavigate } from 'react-router';
+import { type User } from '@auth/core/types';
 
 import { PlusIcon } from '@/components/custom/icons';
 import { SidebarHistory } from '@/components/custom/sidebar-history';
@@ -21,7 +20,7 @@ import {
 import { BetterTooltip } from '@/components/ui/tooltip';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { setOpenMobile } = useSidebar();
 
   return (
@@ -32,8 +31,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
             <div
               onClick={() => {
                 setOpenMobile(false);
-                router.push('/');
-                router.refresh();
+                navigate('/');
               }}
               className="flex flex-row gap-3 items-center"
             >
@@ -47,8 +45,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 className="p-2 h-fit"
                 onClick={() => {
                   setOpenMobile(false);
-                  router.push('/');
-                  router.refresh();
+                  navigate('/');
                 }}
               >
                 <PlusIcon />

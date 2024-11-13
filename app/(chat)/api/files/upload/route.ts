@@ -1,5 +1,5 @@
+import { handler } from '@/lib/api-handler';
 import { put } from "@vercel/blob";
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/app/(auth)/auth";
@@ -20,10 +20,10 @@ const FileSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await auth();
+  const session = await auth(request);
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (request.body === null) {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return Response.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const validatedFile = FileSchema.safeParse({ file });
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         .map((error) => error.message)
         .join(", ");
 
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return Response.json({ error: errorMessage }, { status: 400 });
     }
 
     const filename = file.name;
@@ -56,14 +56,16 @@ export async function POST(request: Request) {
         access: "public",
       });
 
-      return NextResponse.json(data);
+      return Response.json(data);
     } catch (error) {
-      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+      return Response.json({ error: "Upload failed" }, { status: 500 });
     }
   } catch (error) {
-    return NextResponse.json(
+    return Response.json(
       { error: "Failed to process request" },
       { status: 500 },
     );
   }
 }
+
+export const { action, loader } = handler({ POST });

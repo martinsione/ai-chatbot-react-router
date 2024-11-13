@@ -1,22 +1,20 @@
-import { compare } from "bcrypt-ts";
-import NextAuth, { User, Session } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { compare } from 'bcrypt-ts';
+import { User, Session } from '@auth/core/types';
+import Credentials from '@auth/core/providers/credentials';
+import { RemixAuth } from '@/app/(auth)/remix-auth';
 
-import { getUser } from "@/db/queries";
-
-import { authConfig } from "./auth.config";
+import { getUser } from '@/db/queries';
 
 interface ExtendedSession extends Session {
   user: User;
 }
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
-  ...authConfig,
+export const { handlers, auth, signIn, signOut } = RemixAuth({
+  secret: process.env.AUTH_SECRET,
+  pages: {
+    signIn: '/login',
+    newUser: '/',
+  },
   providers: [
     Credentials({
       credentials: {},
